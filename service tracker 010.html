@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Service Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .due {
+            background-color: #ffcccc;
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        .form-container label {
+            margin-right: 10px;
+        }
+        .form-container input, .form-container select {
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Car Service Tracker</h1>
+
+    <!-- Current Date and Mileage Inputs -->
+    <div class="form-container">
+        <h3>Current Information</h3>
+        <label>Current Date: <input type="date" id="currentDate"></label>
+        <label>Current Mileage: <input type="number" id="currentMileage" min="0"></label>
+        <button onclick="updateCurrentInfo()">Update</button>
+    </div>
+
+    <!-- Completed Services Section -->
+    <h2>Completed Services</h2>
+    <div class="form-container">
+        <h3>Add Completed Service</h3>
+        <label>Date: <input type="date" id="compDate"></label>
+        <label>Description: <input type="text" id="compDescription" placeholder="e.g., Oil Change"></label>
+        <label>Shop: <input type="text" id="compShop" placeholder="e.g., QuickLube"></label>
+        <label>Cost: <input type="number" id="compCost" min="0" step="0.01" placeholder="e.g., 45.00"></label>
+        <label>Mileage: <input type="number" id="compMileage" min="0" placeholder="e.g., 48000"></label>
+        <label>Receipt #: <input type="text" id="compReceipt" placeholder="e.g., 12345"></label>
+        <button onclick="addCompletedService()">Add Service</button>
+    </div>
+    <table id="completedTable">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Shop</th>
+                <th>Cost</th>
+                <th>Mileage</th>
+                <th>Receipt #</th>
+            </tr>
+        </thead>
+        <tbody id="completedBody"></tbody>
+    </table>
+
+    <!-- Pending Services Section -->
+    <h2>Pending Services</h2>
+    <div class="form-container">
+        <h3>Add Pending Service</h3>
+        <label>Description: <input type="text" id="pendDescription" placeholder="e.g., Tire Rotation"></label>
+        <label>Due Date: <input type="date" id="pendDueDate"></label>
+        <label>Due Mileage: <input type="number" id="pendDueMileage" min="0" placeholder="e.g., 51000"></label>
+        <label>Priority: 
+            <select id="pendPriority">
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+            </select>
+        </label>
+        <label>Notes: <input type="text" id="pendNotes" placeholder="e.g., Check warranty"></label>
+        <button onclick="addPendingService()">Add Service</button>
+    </div>
+    <table id="pendingTable">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Due Date</th>
+                <th>Due Mileage</th>
+                <th>Priority</th>
+                <th>Notes</th>
+                <th>Is Due</th>
+            </tr>
+        </thead>
+        <tbody id="pendingBody"></tbody>
+    </table>
+
+    <script>
+        // Initialize data from localStorage or set defaults
+        let completedServices = JSON.parse(localStorage.getItem('completedServices')) || [];
+        let pendingServices = JSON.parse(localStorage.getItem('pendingServices')) || [];
+        let currentInfo = JSON.parse(localStorage.getItem('currentInfo')) || {
+            date: new Date().toISOString().split('T')[0],
+            mileage: 0
+        };
+
+        // Set default values for current date and mileage
+        document.getElementById('currentDate').value = currentInfo.date;
+        document.getElementById('currentMileage').value = currentInfo.mileage;
+
+        // Function to save data to localStorage
+        function saveData() {
+            localStorage.setItem('completedServices', JSON.stringify(completedServices));
+            localStorage.setItem('pendingServices', JSON.stringify(pendingServices));
+            localStorage.setItem('currentInfo', JSON.stringify(currentInfo));
+        }
+
+        // Function to update current date and mileage
+        function updateCurrentInfo() {
+            currentInfo.date = document.getElementById('currentDate').value;
+            currentInfo.mileage = parseInt(document.getElementById('currentMileage').value) || 0;
+            saveData();
+            renderTables();
+        }
+
+        // Function to add a completed service
+        function addCompletedService() {
+            const service = {
+                date: document.getElementById('compDate').value,
+                description: document.getElementById('compDescription').value,
+                shop: document.getElementById('compShop').value,
+                cost: parseFloat(document.getElementById('compCost').value) || 0,
+                mileage: parseInt(document.getElementById('compMileage').value) || 0,
+                receipt: document.getElementById('compReceipt').value
+            };
+            if (service.description && service.date) {
+                completedServices.push(service);
+                saveData();
+                renderTables();
+                // Clear form
+                document.getElementById('compDate').value = '';
+                document.getElementById('compDescription').value = '';
+                document.getElementById('compShop').value = '';
+                document.getElementById('compCost').value = '';
+                document.getElementById('compMileage').value = '';
+                document.getElementById('compReceipt').value = '';
+            } else {
+                alert('Please enter at least a date and description.');
+            }
+        }
+
+        // Function to add a pending service
+        function addPendingService() {
+            const service = {
+                description: document.getElementById('pendDescription').value,
+                dueDate: document.getElementById('pendDueDate').value,
+                dueMileage: parseInt(document.getElementById('pendDueMileage').value) || 0,
+                priority: document.getElementById('pendPriority').value,
+                notes: document.getElementById('pendNotes').value
+            };
+            if (service.description) {
+                pendingServices.push(service);
+                saveData();
+                renderTables();
+                // Clear form
+                document.getElementById('pendDescription').value = '';
+                document.getElementById('pendDueDate').value = '';
+                document.getElementById('pendDueMileage').value = '';
+                document.getElementById('pendPriority').value = 'High';
+                document.getElementById('pendNotes').value = '';
+            } else {
+                alert('Please enter a description.');
+            }
+        }
+
+        // Function to check if a pending service is due
+        function isServiceDue(service) {
+            const today = new Date(currentInfo.date);
+            const dueDate = service.dueDate ? new Date(service.dueDate) : null;
+            const currentMileage = currentInfo.mileage;
+            const dueMileage = service.dueMileage;
+
+            return (dueDate && dueDate <= today) || (dueMileage && dueMileage <= currentMileage);
+        }
+
+        // Function to render both tables
+        function renderTables() {
+            // Render Completed Services
+            const compBody = document.getElementById('completedBody');
+            compBody.innerHTML = '';
+            completedServices.forEach(service => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${service.date}</td>
+                    <td>${service.description}</td>
+                    <td>${service.shop}</td>
+                    <td>$${service.cost.toFixed(2)}</td>
+                    <td>${service.mileage}</td>
+                    <td>${service.receipt}</td>
+                `;
+                compBody.appendChild(row);
+            });
+
+            // Render Pending Services
+            const pendBody = document.getElementById('pendingBody');
+            pendBody.innerHTML = '';
+            pendingServices.forEach(service => {
+                const isDue = isServiceDue(service);
+                const row = document.createElement('tr');
+                if (isDue) row.classList.add('due');
+                row.innerHTML = `
+                    <td>${service.description}</td>
+                    <td>${service.dueDate || ''}</td>
+                    <td>${service.dueMileage || ''}</td>
+                    <td>${service.priority}</td>
+                    <td>${service.notes}</td>
+                    <td>${isDue ? 'Yes' : 'No'}</td>
+                `;
+                pendBody.appendChild(row);
+            });
+        }
+
+        // Initial render
+        renderTables();
+    </script>
+</body>
+</html>

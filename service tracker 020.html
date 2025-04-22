@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Service Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 16px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body.dark {
+            background-color: #212121;
+            color: #e0e0e0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 500;
+            color: #1976d2;
+            margin-bottom: 24px;
+        }
+
+        body.dark h1 {
+            color: #4fc3f7;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #424242;
+            margin: 16px 0;
+        }
+
+        body.dark h2 {
+            color: #e0e0e0;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            transition: background 0.3s ease;
+        }
+
+        body.dark .card {
+            background: #424242;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .form-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: 0.875rem;
+            color: #757575;
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
+
+        body.dark .form-group label {
+            color: #b0bec5;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #bdbdbd;
+            border-radius: 4px;
+            font-size: 1rem;
+            outline: none;
+            background: white;
+            transition: border-color 0.2s ease;
+        }
+
+        body.dark .form-group input,
+        body.dark .form-group select {
+            background: #616161;
+            border-color: #757575;
+            color: #e0e0e0;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #1976d2;
+        }
+
+        body.dark .form-group input:focus,
+        body.dark .form-group select:focus {
+            border-color: #4fc3f7;
+        }
+
+        .form-group input:not(:placeholder-shown) + label,
+        .form-group input:focus + label,
+        .form-group select:not(:placeholder-shown) + label,
+        .form-group select:focus + label {
+            top: -8px;
+            left: 8px;
+            font-size: 0.75rem;
+            color: #1976d2;
+            background: white;
+            padding: 0 4px;
+        }
+
+        body.dark .form-group input:not(:placeholder-shown) + label,
+        body.dark .form-group input:focus + label,
+        body.dark .form-group select:not(:placeholder-shown) + label,
+        body.dark .form-group select:focus + label {
+            color: #4fc3f7;
+            background: #424242;
+        }
+
+        button {
+            background-color: #1976d2;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        body.dark button {
+            background-color: #0288d1;
+        }
+
+        button:hover {
+            background-color: #1565c0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        body.dark button:hover {
+            background-color: #0277bd;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #d32f2f;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        body.dark .delete-btn {
+            color: #ef5350;
+        }
+
+        .delete-btn:hover {
+            color: #b71c1c;
+        }
+
+        body.dark .delete-btn:hover {
+            color: #e53935;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        body.dark th,
+        body.dark td {
+            border-bottom: 1px solid #616161;
+        }
+
+        th {
+            background-color: #fafafa;
+            font-weight: 500;
+            color: #424242;
+        }
+
+        body.dark th {
+            background-color: #616161;
+            color: #e0e0e0;
+        }
+
+        tr.due {
+            background-color: #ffebee;
+        }
+
+        body.dark tr.due {
+            background-color: #d81b60;
+        }
+
+        .toggle-container {
+            text-align: right;
+            margin-bottom: 16px;
+        }
+
+        #snackbar {
+            visibility: hidden;
+            background-color: #333;
+            color: white;
+            padding: 16px;
+            border-radius: 4px;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        body.dark #snackbar {
+            background-color: #757575;
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeout { from { opacity: 1; } to { opacity: 0; } }
+
+        @media (max-width: 600px) {
+            .form-container {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="toggle-container">
+        <button onclick="toggleDarkMode()">
+            <span class="material-icons">brightness_6</span> Toggle Theme
+        </button>
+    </div>
+    <h1>Car Service Tracker</h1>
+
+    <!-- Current Information -->
+    <div class="card">
+        <h2>Current Information</h2>
+        <div class="form-container">
+            <div class="form-group">
+                <input type="date" id="currentDate" required>
+                <label for="currentDate">Current Date</label>
+            </div>
+            <div class="form-group">
+                <input type="number" id="currentMileage" min="0" required>
+                <label for="currentMileage">Current Mileage</label>
+            </div>
+            <button onclick="updateCurrentInfo()">Update</button>
+        </div>
+    </div>
+
+    <!-- Completed Services -->
+    <div class="card">
+        <h2>Completed Services</h2>
+        <div class="form-container">
+            <div class="form-group">
+                <input type="date" id="compDate" required>
+                <label for="compDate">Date</label>
+            </div>
+            <div class="form-group">
+                <input type="text" id="compDescription" placeholder=" " required>
+                <label for="compDescription">Description</label>
+            </div>
+            <div class="form-group">
+                <input type="text" id="compShop" placeholder=" ">
+                <label for="compShop">Shop</label>
+            </div>
+            <div class="form-group">
+                <input type="number" id="compCost" min="0" step="0.01" placeholder=" ">
+                <label for="compCost">Cost ($)</label>
+            </div>
+            <div class="form-group">
+                <input type="number" id="compMileage" min="0" placeholder=" ">
+                <label for="compMileage">Mileage</label>
+            </div>
+            <div class="form-group">
+                <input type="text" id="compReceipt" placeholder=" ">
+                <label for="compReceipt">Receipt #</label>
+            </div>
+            <button onclick="addCompletedService()">Add Service</button>
+        </div>
+        <button onclick="exportToCSV('completedTable', 'completed_services.csv')">
+            <span class="material-icons">download</span> Export to CSV
+        </button>
+        <table id="completedTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Shop</th>
+                    <th>Cost</th>
+                    <th>Mileage</th>
+                    <th>Receipt #</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="completedBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Pending Services -->
+    <div class="card">
+        <h2>Pending Services</h2>
+        <div class="form-container">
+            <div class="form-group">
+                <input type="text" id="pendDescription" placeholder=" " required>
+                <label for="pendDescription">Description</label>
+            </div>
+            <div class="form-group">
+                <input type="date" id="pendDueDate" placeholder=" ">
+                <label for="pendDueDate">Due Date</label>
+            </div>
+            <div class="form-group">
+                <input type="number" id="pendDueMileage" min="0" placeholder=" ">
+                <label for="pendDueMileage">Due Mileage</label>
+            </div>
+            <div class="form-group">
+                <select id="pendPriority">
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+                <label for="pendPriority">Priority</label>
+            </div>
+            <div class="form-group">
+                <input type="text" id="pendNotes" placeholder=" ">
+                <label for="pendNotes">Notes</label>
+            </div>
+            <button onclick="addPendingService()">Add Service</button>
+        </div>
+        <button onclick="exportToCSV('pendingTable', 'pending_services.csv')">
+            <span class="material-icons">download</span> Export to CSV
+        </button>
+        <table id="pendingTable">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Due Date</th>
+                    <th>Due Mileage</th>
+                    <th>Priority</th>
+                    <th>Notes</th>
+                    <th>Is Due</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="pendingBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Snackbar -->
+    <div id="snackbar"></div>
+
+    <script>
+        // Initialize data from localStorage or set defaults
+        let completedServices = JSON.parse(localStorage.getItem('completedServices')) || [];
+        let pendingServices = JSON.parse(localStorage.getItem('pendingServices')) || [];
+        let currentInfo = JSON.parse(localStorage.getItem('currentInfo')) || {
+            date: new Date().toISOString().split('T')[0],
+            mileage: 0
+        };
+
+        // Set default values for current date and mileage
+        document.getElementById('currentDate').value = currentInfo.date;
+        document.getElementById('currentMileage').value = currentInfo.mileage;
+
+        // Load theme preference
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark');
+        }
+
+        // Function to save data to localStorage
+        function saveData() {
+            localStorage.setItem('completedServices', JSON.stringify(completedServices));
+            localStorage.setItem('pendingServices', JSON.stringify(pendingServices));
+            localStorage.setItem('currentInfo', JSON.stringify(currentInfo));
+        }
+
+        // Function to show snackbar
+        function showSnackbar(message) {
+            const snackbar = document.getElementById('snackbar');
+            snackbar.textContent = message;
+            snackbar.classList.add('show');
+            setTimeout(() => snackbar.classList.remove('show'), 3000);
+        }
+
+        // Function to toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark');
+            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+        }
+
+        // Function to update current date and mileage
+        function updateCurrentInfo() {
+            currentInfo.date = document.getElementById('currentDate').value;
+            currentInfo.mileage = parseInt(document.getElementById('currentMileage').value) || 0;
+            saveData();
+            renderTables();
+            showSnackbar('Current information updated');
+        }
+
+        // Function to add a completed service
+        function addCompletedService() {
+            const service = {
+                date: document.getElementById('compDate').value,
+                description: document.getElementById('compDescription').value,
+                shop: document.getElementById('compShop').value,
+                cost: parseFloat(document.getElementById('compCost').value) || 0,
+                mileage: parseInt(document.getElementById('compMileage').value) || 0,
+                receipt: document.getElementById('compReceipt').value
+            };
+            if (service.description && service.date) {
+                completedServices.push(service);
+                saveData();
+                renderTables();
+                showSnackbar('Completed service added');
+                // Clear form
+                document.getElementById('compDate').value = '';
+                document.getElementById('compDescription').value = '';
+                document.getElementById('compShop').value = '';
+                document.getElementById('compCost').value = '';
+                document.getElementById('compMileage').value = '';
+                document.getElementById('compReceipt').value = '';
+            } else {
+                alert('Please enter at least a date and description.');
+            }
+        }
+
+        // Function to add a pending service
+        function addPendingService() {
+            const service = {
+                description: document.getElementById('pendDescription').value,
+                dueDate: document.getElementById('pendDueDate').value,
+                dueMileage: parseInt(document.getElementById('pendDueMileage').value) || 0,
+                priority: document.getElementById('pendPriority').value,
+                notes: document.getElementById('pendNotes').value
+            };
+            if (service.description) {
+                pendingServices.push(service);
+                saveData();
+                renderTables();
+                showSnackbar('Pending service added');
+                // Clear form
+                document.getElementById('pendDescription').value = '';
+                document.getElementById('pendDueDate').value = '';
+                document.getElementById('pendDueMileage').value = '';
+                document.getElementById('pendPriority').value = 'High';
+                document.getElementById('pendNotes').value = '';
+            } else {
+                alert('Please enter a description.');
+            }
+        }
+
+        // Function to delete a completed service
+        function deleteCompletedService(index) {
+            completedServices.splice(index, 1);
+            saveData();
+            renderTables();
+            showSnackbar('Completed service deleted');
+        }
+
+        // Function to delete a pending service
+        function deletePendingService(index) {
+            pendingServices.splice(index, 1);
+            saveData();
+            renderTables();
+            showSnackbar('Pending service deleted');
+        }
+
+        // Function to check if a pending service is due
+        function isServiceDue(service) {
+            const today = new Date(currentInfo.date);
+            const dueDate = service.dueDate ? new Date(service.dueDate) : null;
+            const currentMileage = currentInfo.mileage;
+            const dueMileage = service.dueMileage;
+
+            return (dueDate && dueDate <= today) || (dueMileage && dueMileage <= currentMileage);
+        }
+
+        // Function to export table to CSV
+        function exportToCSV(tableId, filename) {
+            const table = document.getElementById(tableId);
+            const rows = Array.from(table.querySelectorAll('tr'));
+            const csv = rows.map(row => 
+                Array.from(row.querySelectorAll('th, td'))
+                    .filter(cell => !cell.querySelector('button')) // Exclude action column
+                    .map(cell => `"${cell.textContent}"`)
+                    .join(',')
+            ).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+            showSnackbar(`Exported ${filename}`);
+        }
+
+        // Function to render both tables
+        function renderTables() {
+            // Render Completed Services
+            const compBody = document.getElementById('completedBody');
+            compBody.innerHTML = '';
+            completedServices.forEach((service, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${service.date}</td>
+                    <td>${service.description}</td>
+                    <td>${service.shop}</td>
+                    <td>$${service.cost.toFixed(2)}</td>
+                    <td>${service.mileage}</td>
+                    <td>${service.receipt}</td>
+                    <td><button class="delete-btn" onclick="deleteCompletedService(${index})"><span class="material-icons">delete</span></button></td>
+                `;
+                compBody.appendChild(row);
+            });
+
+            // Render Pending Services
+            const pendBody = document.getElementById('pendingBody');
+            pendBody.innerHTML = '';
+            pendingServices.forEach((service, index) => {
+                const isDue = isServiceDue(service);
+                const row = document.createElement('tr');
+                if (isDue) row.classList.add('due');
+                row.innerHTML = `
+                    <td>${service.description}</td>
+                    <td>${service.dueDate || ''}</td>
+                    <td>${service.dueMileage || ''}</td>
+                    <td>${service.priority}</td>
+                    <td>${service.notes}</td>
+                    <td>${isDue ? 'Yes' : 'No'}</td>
+                    <td><button class="delete-btn" onclick="deletePendingService(${index})"><span class="material-icons">delete</span></button></td>
+                `;
+                pendBody.appendChild(row);
+            });
+        }
+
+        // Initial render
+        renderTables();
+    </script>
+</body>
+</html>
